@@ -1,12 +1,12 @@
-// @ts-nocheck
 'use client'
 import { useState, useEffect } from 'react'
-import { ArrowRight, Leaf, Recycle, Users, Coins, MapPin, ChevronRight } from 'lucide-react'
+import { ArrowRight, Leaf, Recycle, Users, Coins, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Poppins } from 'next/font/google'
 import Link from 'next/link'
 import ContractInteraction from '@/components/ContractInteraction'
 import { getRecentReports, getAllRewards, getWasteCollectionTasks } from '@/utils/db/actions'
+
 const poppins = Poppins({
   weight: ['300', '400', '600'],
   subsets: ['latin'],
@@ -33,8 +33,6 @@ export default function Home() {
     tokensEarned: 0,
     co2Offset: 0
   });
-
-
 
   useEffect(() => {
     async function fetchImpactData() {
@@ -81,10 +79,10 @@ export default function Home() {
     <div className={`container mx-auto px-4 py-16 ${poppins.className}`}>
       <section className="text-center mb-20">
         <AnimatedGlobe />
-        <h1 className="text-6xl font-bold mb-6 text-gray-800 tracking-tight">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gray-800 tracking-tight">
           Phoenix <span className="text-green-600">E-Waste Management Web-App</span>
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
+        <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
           Join Our Community In Making Waste Management More Efficient And Rewarding !
         </p>
         {!loggedIn ? (
@@ -102,7 +100,7 @@ export default function Home() {
         )}
       </section>
 
-      <section className="grid md:grid-cols-3 gap-10 mb-20">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 mb-20">
         <FeatureCard
           icon={Leaf}
           title="Eco-Friendly"
@@ -121,16 +119,14 @@ export default function Home() {
       </section>
 
       <section className="bg-white p-10 rounded-3xl shadow-lg mb-20">
-        <h2 className="text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
-        <div className="grid md:grid-cols-4 gap-6">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Recycle} />
           <ImpactCard title="Reports Submitted" value={impactData.reportsSubmitted.toString()} icon={MapPin} />
           <ImpactCard title="Tokens Earned" value={impactData.tokensEarned.toString()} icon={Coins} />
           <ImpactCard title="CO2 Offset" value={`${impactData.co2Offset} kg`} icon={Leaf} />
         </div>
       </section>
-
-
     </div>
   )
 }
@@ -141,7 +137,7 @@ function ImpactCard({ title, value, icon: Icon }: { title: string; value: string
   return (
     <div className="p-6 rounded-xl bg-gray-50 border border-gray-100 transition-all duration-300 ease-in-out hover:shadow-md">
       <Icon className="h-10 w-10 text-green-500 mb-4" />
-      <p className="text-3xl font-bold mb-2 text-gray-800">{formattedValue}</p>
+      <p className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800">{formattedValue}</p>
       <p className="text-sm text-gray-600">{title}</p>
     </div>
   )
@@ -153,7 +149,7 @@ function FeatureCard({ icon: Icon, title, description }: { icon: React.ElementTy
       <div className="bg-green-100 p-4 rounded-full mb-6">
         <Icon className="h-8 w-8 text-green-600" />
       </div>
-      <h3 className="text-xl font-semibold mb-4 text-gray-800">{title}</h3>
+      <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800">{title}</h3>
       <p className="text-gray-600 leading-relaxed">{description}</p>
     </div>
   )
