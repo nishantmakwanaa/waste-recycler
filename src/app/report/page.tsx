@@ -30,6 +30,7 @@ export default function ReportPage() {
     location: '',
     type: '',
     amount: '',
+    serialnumber: '',
   })
 
   const [file, setFile] = useState<File | null>(null)
@@ -180,7 +181,7 @@ export default function ReportPage() {
       };
 
       setReports([formattedReport, ...reports]);
-      setNewReport({ location: '', type: '', amount: '' });
+      setNewReport({ location: '', type: '', amount: '', serialnumber: '' });
       setFile(null);
       setPreview(null);
       setVerificationStatus('idle');
@@ -324,7 +325,20 @@ export default function ReportPage() {
               onChange={handleInputChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
-              placeholder="Enter Full Waste Details"
+              placeholder="Enter full waste details"
+            />
+          </div>
+          <div>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Serial Number</label>
+            <input
+              type="text"
+              id="type"
+              name="type"
+              value={newReport.serialnumber}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
+              placeholder="Enter pruduct serial number"
             />
           </div>
           <div>
