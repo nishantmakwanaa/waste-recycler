@@ -1,9 +1,9 @@
 'use client'
 import { useState, useCallback, useEffect } from 'react'
-import {  MapPin, Upload, CheckCircle, Loader } from 'lucide-react'
+import { MapPin, Upload, CheckCircle, Loader } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { StandaloneSearchBox,  useJsApiLoader } from '@react-google-maps/api'
+import { StandaloneSearchBox, useJsApiLoader } from '@react-google-maps/api'
 import { Libraries } from '@react-google-maps/api';
 import { createUser, getUserByEmail, createReport, getRecentReports } from '@/utils/db/actions';
 import { useRouter } from 'next/navigation';
@@ -97,7 +97,7 @@ export default function ReportPage() {
     if (!file) return
 
     setVerificationStatus('verifying')
-    
+
     try {
       const genAI = new GoogleGenerativeAI(geminiApiKey!);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -128,7 +128,7 @@ export default function ReportPage() {
       const result = await model.generateContent([prompt, ...imageParts]);
       const response = await result.response;
       const text = response.text();
-      
+
       try {
         const parsedResult = JSON.parse(text);
         if (parsedResult.wasteType && parsedResult.quantity && parsedResult.confidence) {
@@ -159,7 +159,7 @@ export default function ReportPage() {
       toast.error('Please verify the waste before submitting or log in.');
       return;
     }
-    
+
     setIsSubmitting(true);
     try {
       const report = await createReport(
@@ -170,7 +170,7 @@ export default function ReportPage() {
         preview || undefined,
         verificationResult ? JSON.stringify(verificationResult) : undefined
       ) as any;
-      
+
       const formattedReport = {
         id: report.id,
         location: report.location,
@@ -178,14 +178,14 @@ export default function ReportPage() {
         amount: report.amount,
         createdAt: report.createdAt.toISOString().split('T')[0]
       };
-      
+
       setReports([formattedReport, ...reports]);
       setNewReport({ location: '', type: '', amount: '' });
       setFile(null);
       setPreview(null);
       setVerificationStatus('idle');
       setVerificationResult(null);
-      
+
 
       toast.success(`Report submitted successfully! You've earned points for reporting waste.`);
     } catch (error) {
@@ -205,7 +205,7 @@ export default function ReportPage() {
           user = await createUser(email, 'Anonymous User');
         }
         setUser(user);
-        
+
         const recentReports = await getRecentReports();
         const formattedReports = recentReports.map(report => ({
           ...report,
@@ -213,7 +213,7 @@ export default function ReportPage() {
         }));
         setReports(formattedReports);
       } else {
-        router.push('/login'); 
+        router.push('/login');
       }
     };
     checkUser();
@@ -222,7 +222,7 @@ export default function ReportPage() {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
-      
+
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-lg mb-12">
         <div className="mb-8">
           <label htmlFor="waste-image" className="block text-lg font-medium text-gray-700 mb-2">
@@ -245,17 +245,17 @@ export default function ReportPage() {
             </div>
           </div>
         </div>
-        
+
         {preview && (
           <div className="mt-4 mb-8">
             <img src={preview} alt="Waste preview" className="max-w-full h-auto rounded-xl shadow-md" />
           </div>
         )}
-        
-        <Button 
-          type="button" 
-          onClick={handleVerify} 
-          className="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg rounded-xl transition-colors duration-300" 
+
+        <Button
+          type="button"
+          onClick={handleVerify}
+          className="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg rounded-xl transition-colors duration-300"
           disabled={!file || verificationStatus === 'verifying'}
         >
           {verificationStatus === 'verifying' ? (
@@ -315,7 +315,7 @@ export default function ReportPage() {
             )}
           </div>
           <div>
-            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Waste Type</label>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">Waste Details</label>
             <input
               type="text"
               id="type"
@@ -324,8 +324,7 @@ export default function ReportPage() {
               onChange={handleInputChange}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-300 bg-gray-100"
-              placeholder="Verified waste type"
-              readOnly
+              placeholder="Enter Full Waste Details"
             />
           </div>
           <div>
@@ -343,8 +342,8 @@ export default function ReportPage() {
             />
           </div>
         </div>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg rounded-xl transition-colors duration-300 flex items-center justify-center"
           disabled={isSubmitting}
         >
