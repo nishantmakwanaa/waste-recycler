@@ -232,7 +232,7 @@ export async function getWasteCollectionTasks(limit: number = 20) {
 
     return tasks.map(task => ({
       ...task,
-      date: task.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      date: task.date.toISOString().split('T')[0],
     }));
   } catch (error) {
     console.error("Error fetching waste collection tasks:", error);
@@ -255,7 +255,6 @@ export async function saveReward(userId: number, amount: number) {
       .returning()
       .execute();
 
-    // Create a transaction for this reward
     await createTransaction(userId, 'earned_collect', amount, 'Points earned for collecting waste');
 
     return reward;
@@ -347,7 +346,7 @@ export async function getRewardTransactions(userId: number) {
 
     const formattedTransactions = transactions.map(t => ({
       ...t,
-      date: t.date.toISOString().split('T')[0], // Format date as YYYY-MM-DD
+      date: t.date.toISOString().split('T')[0],
     }));
 
     console.log('Formatted transactions:', formattedTransactions)
@@ -362,7 +361,6 @@ export async function getAvailableRewards(userId: number) {
   try {
     console.log('Fetching available rewards for user:', userId);
 
-    // Get user's total points
     const userTransactions = await getRewardTransactions(userId);
     const userPoints = userTransactions.reduce((total, transaction) => {
       return transaction.type.startsWith('earned') ? total + transaction.amount : total - transaction.amount;
@@ -370,7 +368,6 @@ export async function getAvailableRewards(userId: number) {
 
     console.log('User total points:', userPoints);
 
-    // Get available rewards from the database
     const dbRewards = await db
       .select({
         id: Rewards.id,
@@ -385,10 +382,9 @@ export async function getAvailableRewards(userId: number) {
 
     console.log('Rewards from database:', dbRewards);
 
-    // Combine user points and database rewards
     const allRewards = [
       {
-        id: 0, // Use a special ID for user's points
+        id: 0,
         name: "Your Points",
         cost: userPoints,
         description: "Redeem your earned points",
@@ -424,7 +420,7 @@ export async function redeemReward(userId: number, rewardId: number) {
     const userReward = await getOrCreateReward(userId) as any;
 
     if (rewardId === 0) {
-      // Redeem all points
+
       const [updatedReward] = await db.update(Rewards)
         .set({
           points: 0,
@@ -434,12 +430,10 @@ export async function redeemReward(userId: number, rewardId: number) {
         .returning()
         .execute();
 
-      // Create a transaction for this redemption
       await createTransaction(userId, 'redeemed', userReward.points, `Redeemed all points: ${userReward.points}`);
 
       return updatedReward;
     } else {
-      // Existing logic for redeeming specific rewards
       const availableReward = await db.select().from(Rewards).where(eq(Rewards.id, rewardId)).execute();
 
       if (!userReward || !availableReward[0] || userReward.points < availableReward[0].points) {
@@ -455,7 +449,6 @@ export async function redeemReward(userId: number, rewardId: number) {
         .returning()
         .execute();
 
-      // Create a transaction for this redemption
       await createTransaction(userId, 'redeemed', availableReward[0].points, `Redeemed: ${availableReward[0].name}`);
 
       return updatedReward;

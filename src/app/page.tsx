@@ -28,7 +28,7 @@ function AnimatedGlobe() {
 export default function Home() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [impactData, setImpactData] = useState({
-    wasteCollected: 0,
+    eWasteCollected: 0,
     reportsSubmitted: 0,
     tokensEarned: 0,
     co2Offset: 0
@@ -40,7 +40,7 @@ export default function Home() {
         const reports = await getRecentReports(100);
         const rewards = await getAllRewards();
         const tasks = await getWasteCollectionTasks(100);
-        const wasteCollected = tasks.reduce((total, task) => {
+        const eWasteCollected = tasks.reduce((total, task) => {
           const match = task.amount.match(/(\d+(\.\d+)?)/);
           const amount = match ? parseFloat(match[0]) : 0;
           return total + amount;
@@ -48,10 +48,10 @@ export default function Home() {
 
         const reportsSubmitted = reports.length;
         const tokensEarned = rewards.reduce((total, reward) => total + (reward.points || 0), 0);
-        const co2Offset = wasteCollected * 0.5;
+        const co2Offset = eWasteCollected * 0.5;
 
         setImpactData({
-          wasteCollected: Math.round(wasteCollected * 10) / 10,
+          eWasteCollected: Math.round(eWasteCollected * 10) / 10,
           reportsSubmitted,
           tokensEarned,
           co2Offset: Math.round(co2Offset * 10) / 10
@@ -60,7 +60,7 @@ export default function Home() {
         console.error("Error fetching impact data:", error);
 
         setImpactData({
-          wasteCollected: 0,
+          eWasteCollected: 0,
           reportsSubmitted: 0,
           tokensEarned: 0,
           co2Offset: 0
@@ -83,7 +83,7 @@ export default function Home() {
           Phoenix <span className="text-green-600">E-Waste Management Web-App</span>
         </h1>
         <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8">
-          Join Our Community In Making Waste Management More Efficient And Rewarding !
+          Join Our Community In Making E-Waste Management More Efficient And Rewarding !
         </p>
         {!loggedIn ? (
           <Button onClick={login} className="bg-green-600 hover:bg-green-700 text-white text-lg py-6 px-10 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
@@ -93,7 +93,7 @@ export default function Home() {
         ) : (
           <Link href="/report">
             <Button className="bg-green-600 hover:bg-green-700 text-white text-lg py-6 px-10 rounded-full font-medium transition-all duration-300 ease-in-out transform hover:scale-105">
-              Report Waste
+              Report E-Waste
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
@@ -104,24 +104,24 @@ export default function Home() {
         <FeatureCard
           icon={Leaf}
           title="Eco-Friendly"
-          description="Contribute to a cleaner environment by reporting and collecting waste."
+          description="Contribute To A Cleaner Environment By Reporting And Collecting E-Waste."
         />
         <FeatureCard
           icon={Coins}
           title="Earn Rewards"
-          description="Get tokens for your contributions to waste management efforts."
+          description="Get Tokens For Your Contributions To E-Waste Management Efforts."
         />
         <FeatureCard
           icon={Users}
           title="Community-Driven"
-          description="Be part of a growing community committed to sustainable practices."
+          description="Be Part Of A Growing Community Committed To Sustainable Practices."
         />
       </section>
 
       <section className="bg-white p-10 rounded-3xl shadow-lg mb-20">
         <h2 className="text-3xl sm:text-4xl font-bold mb-12 text-center text-gray-800">Our Impact</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <ImpactCard title="Waste Collected" value={`${impactData.wasteCollected} kg`} icon={Recycle} />
+          <ImpactCard title="E-Waste Collected" value={`${impactData.eWasteCollected} kg`} icon={Recycle} />
           <ImpactCard title="Reports Submitted" value={impactData.reportsSubmitted.toString()} icon={MapPin} />
           <ImpactCard title="Tokens Earned" value={impactData.tokensEarned.toString()} icon={Coins} />
           <ImpactCard title="CO2 Offset" value={`${impactData.co2Offset} kg`} icon={Leaf} />
