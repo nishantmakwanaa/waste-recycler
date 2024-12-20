@@ -11,37 +11,21 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { Web3Auth } from "@web3auth/modal"
-import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base"
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
-import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance } from "@/utils/db/actions"
-
-const clientId = "BJKdDFkNtkWX87XqkuWrDu4rbkSvWyQZ5lswS0ucINxxcN0inRVW8zzKAywPPzgiOHP7_3PcfFwfpvcQvSdaLRs";
-const chainConfig = {
-  chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0xaa36a7",
-  rpcTarget: "https://rpc.ankr.com/eth_sepolia",
-  displayName: "Ethereum Sepolia Testnet",
-  blockExplorerUrl: "https://sepolia.etherscan.io",
-  ticker: "ETH",
-  tickerName: "Ethereum",
-  logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",
-};
-const privateKeyProvider = new EthereumPrivateKeyProvider({ config: { chainConfig } });
-const web3auth = new Web3Auth({
-  clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
-  privateKeyProvider,
-});
+import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance, verifyPassword } from "@/utils/db/actions"
 
 interface HeaderProps {
   onMenuClick: () => void;
   totalEarnings: number;
 }
 
+interface Notification {
+  id: number;
+  type: string;
+  message: string;
+}
+
 export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
-  const [provider, setProvider] = useState<IProvider | null>(null);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
@@ -51,31 +35,21 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const [balance, setBalance] = useState(0);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        await web3auth.initModal();
-        setProvider(web3auth.provider);
-
-        if (web3auth.connected) {
-          setLoggedIn(true);
-          const user = await web3auth.getUserInfo();
+    const email = localStorage.getItem('userEmail');
+    if (email) {
+      const fetchUserInfo = async () => {
+        const user = await getUserByEmail(email);
+        if (user) {
           setUserInfo(user);
-          if (user.email) {
-            localStorage.setItem('userEmail', user.email);
-            try {
-              await createUser(user.email, user.name || 'Anonymous User');
-            } catch (error) {
-              console.error("Error creating user:", error);
-            }
-          }
+          setLoggedIn(true);
         }
-      } catch (error) {
-        console.error("Error initializing Web3Auth:", error);
-      } finally {
         setLoading(false);
-      }
-    };
-    init();
+      };
+
+      fetchUserInfo();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -118,21 +92,15 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
     };
   }, [userInfo]);
 
-  const login = async () => {
-    if (!web3auth) return;
+  const login = async (email: string, password: string) => {
     try {
-      const web3authProvider = await web3auth.connect();
-      setProvider(web3authProvider);
-      setLoggedIn(true);
-      const user = await web3auth.getUserInfo();
-      setUserInfo(user);
-      if (user.email) {
+      const user = await getUserByEmail(email);
+      if (user && await verifyPassword(user.id, password)) {
+        setLoggedIn(true);
+        setUserInfo(user);
         localStorage.setItem('userEmail', user.email);
-        try {
-          await createUser(user.email, user.name || 'Anonymous User');
-        } catch (error) {
-          console.error("Error creating user:", error);
-        }
+      } else {
+        console.error("Invalid email or password");
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -140,16 +108,9 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   };
 
   const logout = async () => {
-    if (!web3auth) return;
-    try {
-      await web3auth.logout();
-      setProvider(null);
-      setLoggedIn(false);
-      setUserInfo(null);
-      localStorage.removeItem('userEmail');
-    } catch (error) {
-      console.error("Error during logout:", error);
-    }
+    setLoggedIn(false);
+    setUserInfo(null);
+    localStorage.removeItem('userEmail');
   };
 
   const handleNotificationClick = async (notificationId: number) => {
@@ -166,7 +127,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 py-2">
-        {/* Left side: Menu button and Logo */}
         <div className="flex items-center">
           <Button variant="ghost" size="icon" className="mr-2 md:mr-4" onClick={onMenuClick}>
             <Menu className="h-6 w-6" />
@@ -232,7 +192,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             </DropdownMenu>
           )}
 
-          {/* Balance (hidden on mobile) */}
           {!isMobile && (
             <div className="flex items-center space-x-2">
               <Coins className="h-5 w-5 text-gray-500" />
@@ -240,7 +199,6 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             </div>
           )}
 
-          {/* User Actions */}
           {loggedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -257,7 +215,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button variant="outline" onClick={login}>
+            <Button variant="outline" onClick={() => login('user@example.com', 'password123')}>
               <LogIn className="h-5 w-5 mr-2" />
               Log In
             </Button>

@@ -1,26 +1,66 @@
 import { db } from './dbConfig';
+import bcrypt from 'bcryptjs';
 import { Users, Reports, Rewards, CollectedWastes, Notifications, Transactions } from './schema';
 import { eq, sql, and, desc, ne } from 'drizzle-orm';
 
-export async function createUser(email: string, name: string) {
+export async function createUser(email: string, name: string, password: string) {
   try {
-    const [user] = await db.insert(Users).values({ email, name }).returning().execute();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [user] = await db.insert(Users).values({ email, name, password: hashedPassword }).returning().execute();
     return user;
   } catch (error) {
     console.error("Error creating user:", error);
     return null;
   }
 }
-
 export async function getUserByEmail(email: string) {
   try {
     const [user] = await db.select().from(Users).where(eq(Users.email, email)).execute();
+    if (user) {
+      const userWithPassword = await db.select().from(Users).where(eq(Users.email, email)).execute();
+      return userWithPassword[0];
+    }
     return user;
   } catch (error) {
     console.error("Error fetching user by email:", error);
     return null;
   }
 }
+}
+
+export async function loginUser(email: string, password: string) {
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) return null;
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (passwordMatch) {
+      return user;
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    return null;
+  }
+}
+
+export async function resetPassword(email: string, newPassword: string) {
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await db.update(Users).set({ password: hashedPassword }).where(eq(Users.email, email)).execute();
+    return true;
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    return false;
+  }
+}
+
+export const verifyPassword = async (userId: number, password: string) => {
+  const user = await getUserById(userId);
+  return user.password === password;
+};
+
 
 export async function createReport(
   userId: number,
@@ -465,4 +505,19 @@ export async function getUserBalance(userId: number): Promise<number> {
     return transaction.type.startsWith('earned') ? acc + transaction.amount : acc - transaction.amount
   }, 0);
   return Math.max(balance, 0);
+}
+export async function getUserById(userId: number) {
+  try {
+    const [user] = await db.select({
+      id: Users.id,
+      email: Users.email,
+      name: Users.name,
+      createdAt: Users.createdAt,
+      password: Users.password
+    }).from(Users).where(eq(Users.id, userId)).execute();
+    return user;
+  } catch (error) {
+    console.error("Error fetching user by ID:", error);
+    return null;
+  }
 }
