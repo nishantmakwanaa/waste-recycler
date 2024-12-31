@@ -15,7 +15,13 @@ export async function createUser(email: string, name: string, password: string) 
 }
 export async function getUserByEmail(email: string) {
   try {
-    const [user] = await db.select().from(Users).where(eq(Users.email, email)).execute();
+    const [user] = await db.select({
+      id: Users.id,
+      email: Users.email,
+      name: Users.name,
+      createdAt: Users.createdAt,
+      password: Users.password,
+    }).from(Users).where(eq(Users.email, email)).execute();
     if (user) {
       const userWithPassword = await db.select().from(Users).where(eq(Users.email, email)).execute();
       return userWithPassword[0];
@@ -25,7 +31,6 @@ export async function getUserByEmail(email: string) {
     console.error("Error fetching user by email:", error);
     return null;
   }
-}
 }
 
 export async function loginUser(email: string, password: string) {
@@ -513,7 +518,7 @@ export async function getUserById(userId: number) {
       email: Users.email,
       name: Users.name,
       createdAt: Users.createdAt,
-      password: Users.password
+      password: Users.password,
     }).from(Users).where(eq(Users.id, userId)).execute();
     return user;
   } catch (error) {

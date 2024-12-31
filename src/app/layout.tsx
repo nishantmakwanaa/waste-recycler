@@ -1,45 +1,22 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Inter } from 'next/font/google'
-import "./globals.css"
-import Header from "@/components/Header"
-import Sidebar from "@/components/Sidebar"
-import 'leaflet/dist/leaflet.css'
-import { Toaster } from 'react-hot-toast'
-import { getAvailableRewards, getUserByEmail } from '@/utils/db/actions'
+import { useState } from "react";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import "leaflet/dist/leaflet.css";
+import { Toaster } from "react-hot-toast";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [totalEarnings, setTotalEarnings] = useState(0)
-
-  useEffect(() => {
-    const fetchTotalEarnings = async () => {
-      try {
-        const userEmail = localStorage.getItem('userEmail')
-        if (userEmail) {
-          const user = await getUserByEmail(userEmail)
-          console.log('user from layout', user);
-
-          if (user) {
-            const availableRewards = await getAvailableRewards(user.id) as any
-            console.log('availableRewards from layout', availableRewards);
-            setTotalEarnings(availableRewards)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching total earnings:', error)
-      }
-    }
-
-    fetchTotalEarnings()
-  }, [])
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const totalEarnings = 0; // Default to 0 since user-specific earnings are no longer fetched.
 
   return (
     <html lang="en">
@@ -59,5 +36,5 @@ export default function RootLayout({
         <Toaster />
       </body>
     </html>
-  )
+  );
 }
