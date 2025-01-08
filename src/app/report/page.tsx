@@ -81,7 +81,7 @@ const ElectronicItems: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [description, setDescription] = useState('');
   const [productName, setProductName] = useState('');
-  const [detectedPrice, setDetectedPrice] = useState<number | null>(null);
+  const [detectedPrice] = useState<number | null>(null);
   const [showPricePopup, setShowPricePopup] = useState(false);
 
   const handleItemChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -120,40 +120,37 @@ const ElectronicItems: React.FC = () => {
     e.preventDefault();
     const price = prices[selectedItem]?.[selectedBrand]?.[selectedModel];
     if (price) {
-      alert(`The price of the selected product is ₹${price}`);
+      alert(`The Price Of The Selected Product Is ₹${price}`);
     } else {
-      alert('Price not available for the selected product');
+      alert('Price Not Available For The Selected Product');
     }
   };
 
   return (
     <div className="container" style={styles.container}>
-      <h1 style={styles.title}>Electronic Items - E-Waste Report</h1>
+      <h1 style={styles.title}>E-Waste Report</h1>
       <form onSubmit={handleSubmit} style={styles.form}>
-        {/* Product Name, Item Select, Brand, Model, Description, File Upload */}
-        <label style={styles.label}>Product Name:</label>
+        <label style={styles.label}>Product Name :</label>
         <input
           type="text"
-          placeholder="Enter product name"
+          placeholder="Enter Product Name"
           value={productName}
           onChange={handleProductNameChange}
           style={styles.input}
         />
   
-        {/* Main Item Selection */}
-        <label style={styles.label}>Main Option (Electronic Items):</label>
+        <label style={styles.label}>Product Type :</label>
         <select title="Select an electronic item" value={selectedItem} onChange={handleItemChange} style={styles.select}>
-          <option value="">Select an item</option>
+          <option value="">Select An Item</option>
           <option value="mobile">Mobile</option>
           <option value="laptop">Laptop</option>
         </select>
   
-        {/* Brand and Model Selection */}
         {selectedItem && (
           <>
-            <label style={styles.label}>Brands:</label>
+            <label style={styles.label}>Brands :</label>
             <select title="Select a brand" value={selectedBrand} onChange={handleBrandChange} style={styles.select}>
-              <option value="">Select a brand</option>
+              <option value="">Select A Brand</option>
               {electronicItems[selectedItem as keyof typeof electronicItems]?.brands.map((brand) => (
                 <option key={brand.name} value={brand.name}>
                   {brand.name}
@@ -165,9 +162,9 @@ const ElectronicItems: React.FC = () => {
   
         {selectedBrand && (
           <>
-            <label style={styles.label}>Models:</label>
+            <label style={styles.label}>Models :</label>
             <select title="Select a model" value={selectedModel} onChange={handleModelChange} style={styles.select}>
-              <option value="">Select a model</option>
+              <option value="">Select A Model</option>
               {electronicItems[selectedItem]?.brands
                 .find((brand) => brand.name === selectedBrand)
                 ?.models.map((model) => (
@@ -179,8 +176,7 @@ const ElectronicItems: React.FC = () => {
           </>
         )}
   
-        {/* Product Description */}
-        <label style={styles.label}>Product Description:</label>
+        <label style={styles.label}>Product Description :</label>
         <textarea
           placeholder="Enter product description"
           value={description}
@@ -188,13 +184,11 @@ const ElectronicItems: React.FC = () => {
           style={styles.textarea}
         />
   
-        {/* File Upload */}
-        <input type="file" onChange={handleImageChange} title="Upload an image" className="input-file" style={styles.fileInput} />
-  
-        {/* Image Preview */}
+        <input type="file" onChange={handleImageChange} title="Upload An Image" className="input-file" style={styles.fileInput} />
+
         {image && (
           <div style={styles.container}>
-            <h3>Uploaded Image:</h3>
+            <h3>Uploaded Image :</h3>
             <img src={URL.createObjectURL(image)} alt="Product" style={styles.image} />
           </div>
         )}
@@ -202,18 +196,16 @@ const ElectronicItems: React.FC = () => {
         <button type="submit" style={styles.button} className="button">Submit Report</button>
       </form>
   
-      {/* Detected Price Display */}
       {detectedPrice && !showPricePopup && (
         <div style={{ marginTop: '20px' }}>
-          <h3>Detected Price: ₹{detectedPrice}</h3>
+          <h3>Detected Price : ₹{detectedPrice}</h3>
         </div>
       )}
   
-      {/* Price Popup */}
       {showPricePopup && (
         <div style={popupStyles.modal}>
           <div style={popupStyles.modalContent}>
-            <h2>The price of the selected product is ₹{detectedPrice}</h2>
+            <h2>The Price Of The Selected Product Is ₹{detectedPrice}</h2>
             <button
               style={popupStyles.closeButton}
               onClick={() => setShowPricePopup(false)}
@@ -307,7 +299,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     left: '0',
     right: '0',
     bottom: '0',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Overlay background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
